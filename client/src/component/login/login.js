@@ -9,7 +9,6 @@ export class Login extends React.Component {
         username:'',
         password:'',
         message:'',
-        
     };
   }
   changeUsername = (event) =>{
