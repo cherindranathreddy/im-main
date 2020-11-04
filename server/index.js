@@ -9,6 +9,7 @@ const saltRounds=10;
 
 const cookieParser = require('body-parser');
 const session = require('express-session');
+let user = {};
 
 app.use(express.json());
 app.use(
@@ -54,14 +55,6 @@ app.post('/api/register',(req,res)=>{
             res.send(result);
         });
     });
-})
-
-app.get("/api/login",(req,res)=>{
-    if(req.session.user){
-        res.send({loggedIn:true,user:req.session.user})
-    }else{
-        res.send({loggedIn:false});
-    }
 });
 
 app.post('/api/login',(req,res)=>{
@@ -79,6 +72,7 @@ app.post('/api/login',(req,res)=>{
             bcrypt.compare(password,result[0].password,(err,responce)=>{
                 if(err) console.log(err);
                 if(responce){
+                    user = result; //manually saving the result and updating sessions
                     req.session.user = result;
                     console.log(req.session.user);
                     console.log(responce);
@@ -94,7 +88,18 @@ app.post('/api/login',(req,res)=>{
             res.send({ message:"user does not exist!" });
         }
     });
-})
+});
+
+app.get("/api/login",(req,res)=>{
+    //manually updating user bz automatic sessions remembering is not done
+    req.session.user = user;
+    if(req.session.user){
+        res.send({ loggedIn:true , user:req.session.user });
+    }else{
+        res.send({loggedIn:false});
+    }
+});
+
 
 app.listen(3001,()=>{
     console.log('server listening to port 3001');

@@ -1,44 +1,47 @@
-import React,{useEffect} from "react";
+import React from "react";
+import {useState,useEffect} from "react";
 import loginImg from "../../login.svg";
 import Axios from "axios";
 
-export class Login extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-        username:'',
-        password:'',
-        message:'',
-        
-    };
+export function Login() {
+  const [username,setusername]=useState("");
+  const [password,setpassword]=useState("");
+  const [message,setmessage]=useState("");
+
+  const changeUsername = (event) =>{
+      setusername(event.target.value);
   }
-  changeUsername = (event) =>{
-      this.setState({username:event.target.value});
+   const changePassword = (event) =>{
+      setpassword(event.target.value);
   }
-  changePassword = (event) =>{
-      this.setState({password:event.target.value});
-  }
-  changeMessage = (event) => {
-      this.setState({message:event.data.message});
+  const changeMessage = (event) => {
+      setmessage(event.data.message);
   }
 
-  sendLoginDetails = () =>{
+  const sendLoginDetails = () =>{
       Axios.post("http://localhost:3001/api/login",{
-        username:this.state.username,
-        password:this.state.password
+        username:username,
+        password:password
     }).then((responce)=>{
         console.log(responce.data);
         if(responce.data.message){
-            this.changeMessage(responce);
+            changeMessage(responce);
         }else{
             alert('welcome to dashBoard');
         }
     });
     Axios.defaults.withCredentials = true;
-
   }
 
-  render() {
+  useEffect(()=>{
+      Axios.get("http://localhost:3001/api/login").then((responce)=>{
+          if(responce.data.loggedIn == true){
+            console.log(responce.data);
+            alert('already logged in');
+          }
+      })
+  },[]);
+
     return (
       <div className="base-container" >
         <div className="header">Login</div>
@@ -49,21 +52,20 @@ export class Login extends React.Component {
           <div className="form">
             <div className="form-group">
               <label htmlFor="username">USERNAME</label>
-              <input type="text" name="username" placeholder="username" onChange={this.changeUsername}/>
+              <input type="text" name="username" placeholder="username" onChange={changeUsername}/>
             </div>
             <div className="form-group">
               <label htmlFor="password">PASSWORD</label>
-              <input type="password" name="password" placeholder="password" onChange={this.changePassword}/>
+              <input type="password" name="password" placeholder="password" onChange={changePassword}/>
             </div>
           </div>
         </div>
         <div className="footer">
-            {<p>{this.state.message}</p>}
-          <button type="button" className="btn" onClick={this.sendLoginDetails}>
+            {<p>{message}</p>}
+          <button type="button" className="btn" onClick={sendLoginDetails}>
             Login
           </button>
         </div>
       </div>
     );
-  }
 }
